@@ -1,4 +1,4 @@
-module go-server
+module github.com/s.usynin/testing/go-server
 
 go 1.22.4
 
