@@ -1,14 +1,55 @@
 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-200">
-    <div class="flex justify-between items-start">
+    <div class="flex justify-between items-start mb-4">
         <div class="flex-1">
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{.Title}}</h3>
+            <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-xl font-semibold text-gray-800">{{.Title}}</h3>
+                {{if .Category}}
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{{.Category.Name}}</span>
+                {{end}}
+            </div>
             <p class="text-gray-600 mb-2">{{.Content}}</p>
-            <p class="text-sm text-gray-500">{{.CreatedAt.Format "02.01.2006 15:04"}}</p>
+            <div class="flex items-center gap-4 text-sm text-gray-500">
+                <span>{{.CreatedAt.Format "02.01.2006 15:04"}}</span>
+                <span>💬 {{.CommentsCount}}</span>
+                <button hx-post="/likes" hx-vals='{"post_id": "{{.ID}}"}' 
+                        hx-target="#likes-count-{{.ID}}" hx-swap="innerHTML"
+                        class="hover:text-red-500 transition duration-200">
+                    ❤️ <span id="likes-count-{{.ID}}">{{.LikesCount}}</span>
+                </button>
+            </div>
         </div>
         <button hx-delete="/posts/{{.ID}}" hx-target="closest div" hx-swap="outerHTML"
                 class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded-md transition duration-200 ml-4">
             Удалить
         </button>
+    </div>
+    
+    <!-- Форма комментария -->
+    <div class="border-t pt-4 mt-4">
+        <form hx-post="/comments" hx-target="#comments-{{.ID}}" hx-swap="beforeend" hx-on::after-request="this.reset()" class="flex gap-2 mb-3">
+            <input type="hidden" name="post_id" value="{{.ID}}">
+            <input type="text" name="author" placeholder="Ваше имя" required
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            <input type="text" name="content" placeholder="Ваш комментарий" required
+                   class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+            <button type="submit" 
+                    class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-md transition duration-200 text-sm">
+                ➤
+            </button>
+        </form>
+        <div id="comments-{{.ID}}">
+            {{if .Comments}}
+                {{range .Comments}}
+                <div class="comment" style="margin-left: 20px; margin-top: 10px; padding: 10px; background: #f9f9f9; border-left: 3px solid #007bff; border-radius: 4px;">
+                    <div class="comment-author" style="font-weight: bold; color: #007bff;">{{.Author}}</div>
+                    <div class="comment-content" style="margin-top: 5px;">{{.Content}}</div>
+                    <div class="comment-date" style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        {{.CreatedAt.Format "02.01.2006 15:04"}}
+                    </div>
+                </div>
+                {{end}}
+            {{end}}
+        </div>
     </div>
 </div>
 
